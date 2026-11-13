@@ -79,3 +79,4 @@ Frontend runs on: `http://localhost:5173`
 - **Backend (Render / Railway / Vercel)**:
   - Deploy `Backend` with root directory `Backend`, build command `npm install`, start command `node src/index.js`.
   - Add `MONGO_URI` and `PORT` environment variables.
+
