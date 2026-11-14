@@ -1,14 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowLeft, Search, Check, Trash2, Edit3, X, Clock } from "lucide-react";
 
-export default function SearchView({ onClose, tasks = [], onToggleStatus, onEditTask, onDeleteTask }) {
-  const [keyword, setKeyword] = useState("");
+export default function SearchView({
+  onClose,
+  tasks = [],
+  initialKeyword = "",
+  onKeywordChange,
+  onToggleStatus,
+  onViewTask,
+  onEditTask,
+  onDeleteTask,
+}) {
+  const [keyword, setKeyword] = useState(initialKeyword || "");
+
+  useEffect(() => {
+    setKeyword(initialKeyword || "");
+  }, [initialKeyword]);
+
+  const handleInputChange = (val) => {
+    setKeyword(val);
+    if (onKeywordChange) onKeywordChange(val);
+  };
 
   const filtered = tasks.filter((t) => {
     if (!keyword.trim()) return true;
-    const q = keyword.toLowerCase();
-    const inTitle = t.title && t.title.toLowerCase().includes(q);
-    const inDesc = t.description && t.description.toLowerCase().includes(q);
+    const q = keyword.trim().toLowerCase();
+    const inTitle = t.title ? t.title.toLowerCase().includes(q) : false;
+    const inDesc = t.description ? t.description.toLowerCase().includes(q) : false;
     return inTitle || inDesc;
   });
 
@@ -30,13 +48,13 @@ export default function SearchView({ onClose, tasks = [], onToggleStatus, onEdit
               type="text"
               autoFocus
               value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
+              onChange={(e) => handleInputChange(e.target.value)}
               placeholder="Search tasks by title, description..."
               className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-4 pr-10 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#3B5BF5] focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all"
             />
             {keyword ? (
               <button
-                onClick={() => setKeyword("")}
+                onClick={() => handleInputChange("")}
                 className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
               >
                 <X className="w-4 h-4" />
@@ -83,13 +101,18 @@ export default function SearchView({ onClose, tasks = [], onToggleStatus, onEdit
                       {isCompleted && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                     </button>
 
-                    <div className="flex-1 min-w-0">
+                    <div
+                      onClick={() => {
+                        onClose();
+                        onViewTask && onViewTask(task);
+                      }}
+                      className="flex-1 min-w-0 cursor-pointer"
+                    >
                       <p
-                        onClick={() => onToggleStatus(task._id)}
-                        className={`text-sm font-semibold leading-snug cursor-pointer select-none transition-colors ${
+                        className={`text-sm font-semibold leading-snug select-none transition-colors ${
                           isCompleted
                             ? "line-through text-gray-400 font-normal"
-                            : "text-gray-800 hover:text-black"
+                            : "text-gray-800 hover:text-[#3B5BF5]"
                         }`}
                       >
                         {task.title}

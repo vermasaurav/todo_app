@@ -6,26 +6,40 @@ export default function TaskList({
   title = "Tasks Today",
   statusFilter,
   onStatusFilterChange,
+  isSearching,
+  onClearSearch,
   onToggleStatus,
+  onViewTask,
   onEditTask,
   onDeleteTask,
   onViewAll,
   showViewAll = true,
 }) {
   const [swipedTaskId, setSwipedTaskId] = useState(null);
-  const [touchStart, setTouchStart] = useState(0);
+  const [touchStartPos, setTouchStartPos] = useState({ x: 0, y: 0 });
 
   const handleTouchStart = (e) => {
-    setTouchStart(e.targetTouches[0].clientX);
+    setTouchStartPos({
+      x: e.targetTouches[0].clientX,
+      y: e.targetTouches[0].clientY,
+    });
   };
 
   const handleTouchEnd = (e, taskId) => {
-    const touchEnd = e.changedTouches[0].clientX;
-    // Swipe left (more than 50px)
-    if (touchStart - touchEnd > 50) {
-      setSwipedTaskId(taskId);
-    } else if (touchEnd - touchStart > 50) {
-      setSwipedTaskId(null);
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const diffX = touchStartPos.x - touchEndX;
+    const diffY = Math.abs(touchStartPos.y - touchEndY);
+
+    // Only process horizontal swipe if horizontal movement is greater than vertical movement
+    if (Math.abs(diffX) > diffY && Math.abs(diffX) > 40) {
+      if (diffX > 40) {
+        // Swiped Left -> reveal delete action
+        setSwipedTaskId(taskId);
+      } else if (diffX < -40) {
+        // Swiped Right -> close delete action
+        setSwipedTaskId(null);
+      }
     }
   };
 
@@ -74,6 +88,15 @@ export default function TaskList({
 
         {/* Filter Pills & View All */}
         <div className="flex items-center gap-2 flex-wrap">
+          {isSearching && (
+            <button
+              onClick={onClearSearch}
+              className="text-xs font-semibold text-gray-500 hover:text-red-600 hover:bg-red-50 border border-gray-200 hover:border-red-200 px-2.5 py-1 rounded-lg transition-colors"
+            >
+              Clear Search
+            </button>
+          )}
+
           <div className="inline-flex rounded-xl bg-gray-100 p-0.5 text-xs font-medium text-gray-600">
             <button
               onClick={() => onStatusFilterChange("all")}
@@ -132,32 +155,45 @@ export default function TaskList({
                 key={task._id}
                 onTouchStart={handleTouchStart}
                 onTouchEnd={(e) => handleTouchEnd(e, task._id)}
-                className="relative overflow-hidden rounded-2xl transition-all duration-200 group"
+                className="relative overflow-hidden rounded-2xl group select-none"
               >
-                {/* Swipe Left Background Action (Mobile) */}
-                <div className="absolute inset-y-0 right-0 w-24 bg-red-500 text-white flex items-center justify-center font-medium text-xs rounded-r-2xl sm:hidden">
+                {/* Swipe Left Background Action (Mobile - Section 4 Requirement) */}
+                <div className="absolute inset-y-0 right-0 w-24 bg-red-500 text-white flex items-center justify-center font-medium text-xs rounded-r-2xl z-0 sm:hidden">
                   <button
-                    onClick={() => {
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
                       onDeleteTask(task._id);
                       setSwipedTaskId(null);
                     }}
-                    className="w-full h-full flex flex-col items-center justify-center"
+                    className="w-full h-full flex flex-col items-center justify-center text-white active:bg-red-600 transition-colors"
                   >
-                    <Trash2 className="w-4 h-4 mb-0.5" />
-                    <span>Delete</span>
+                    <Trash2 className="w-5 h-5 mb-1" />
+                    <span className="font-semibold text-xs tracking-wide">Delete</span>
                   </button>
                 </div>
 
-                {/* Main Task Item Card */}
+                {/* Main Task Item Card - Opaque solid bg-white with z-10 so red never shows through unless swiped */}
                 <div
-                  className={`relative bg-gray-50/70 hover:bg-gray-50 border border-gray-200/70 hover:border-gray-300/80 p-4 rounded-2xl flex items-center justify-between transition-all duration-200 ${
+                  onClick={() => {
+                    if (isSwiped) {
+                      setSwipedTaskId(null);
+                      return;
+                    }
+                    if (onViewTask) onViewTask(task);
+                  }}
+                  className={`relative z-10 bg-white hover:bg-gray-50/80 border border-gray-200/80 hover:border-gray-300 p-4 rounded-2xl flex items-center justify-between transition-transform duration-200 ease-out shadow-xs cursor-pointer ${
                     isSwiped ? "-translate-x-24" : "translate-x-0"
                   }`}
                 >
                   {/* Left: Custom Checkbox & Title */}
-                  <div className="flex items-start gap-3.5 flex-1 pr-3">
+                  <div className="flex items-start gap-3.5 flex-1 pr-3 min-w-0">
                     <button
-                      onClick={() => onToggleStatus(task._id)}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleStatus(task._id);
+                      }}
                       className={`w-5 h-5 mt-0.5 rounded-[6px] border flex items-center justify-center transition-all duration-200 shrink-0 ${
                         isCompleted
                           ? "bg-[#3B5BF5] border-[#3B5BF5] text-white shadow-xs"
@@ -169,11 +205,10 @@ export default function TaskList({
 
                     <div className="flex-1 min-w-0">
                       <p
-                        onClick={() => onToggleStatus(task._id)}
-                        className={`text-sm font-semibold leading-snug cursor-pointer select-none transition-colors truncate sm:whitespace-normal ${
+                        className={`text-sm font-semibold leading-snug select-none transition-colors truncate sm:whitespace-normal ${
                           isCompleted
                             ? "line-through text-gray-400 font-normal"
-                            : "text-gray-800 hover:text-black"
+                            : "text-gray-800 hover:text-[#3B5BF5]"
                         }`}
                       >
                         {task.title}
@@ -188,7 +223,7 @@ export default function TaskList({
                       {/* Time & Priority Badges */}
                       <div className="flex items-center gap-2 mt-2 flex-wrap">
                         {(task.startTime || task.endTime) && (
-                          <div className="flex items-center gap-1 text-[11px] font-medium text-gray-500 bg-white px-2 py-0.5 rounded-md border border-gray-200/60">
+                          <div className="flex items-center gap-1 text-[11px] font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-200/60">
                             <Clock className="w-3 h-3 text-gray-400" />
                             <span>
                               {task.startTime}
@@ -209,10 +244,18 @@ export default function TaskList({
                     </div>
                   </div>
 
-                  {/* Right Action Icons (Edit / Delete) */}
-                  <div className="flex items-center gap-1.5 text-gray-400 shrink-0">
+                  {/* Right Action Icons (Edit / Delete) - Smoothly hide when swiped to avoid any overlap */}
+                  <div
+                    className={`flex items-center gap-1.5 text-gray-400 shrink-0 transition-opacity duration-150 ${
+                      isSwiped ? "opacity-0 pointer-events-none" : "opacity-100"
+                    }`}
+                  >
                     <button
-                      onClick={() => onEditTask(task)}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditTask(task);
+                      }}
                       aria-label="Edit task"
                       title="Edit Task"
                       className="p-2 hover:text-[#3B5BF5] hover:bg-blue-50 rounded-xl transition-colors"
@@ -220,7 +263,11 @@ export default function TaskList({
                       <Edit3 className="w-4 h-4 text-gray-400 hover:text-[#3B5BF5]" />
                     </button>
                     <button
-                      onClick={() => onDeleteTask(task._id)}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteTask(task._id);
+                      }}
                       aria-label="Delete task"
                       title="Delete Task"
                       className="p-2 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"

@@ -3,16 +3,16 @@ import Onboarding from "./components/Onboarding";
 import Header from "./components/Header";
 import WeekStrip from "./components/WeekStrip";
 import WeeklyCards from "./components/WeeklyCards";
+import WeeklyBreakdown from "./components/WeeklyBreakdown";
 import TaskList from "./components/TaskList";
 import TaskModal from "./components/TaskModal";
+import TaskDetailModal from "./components/TaskDetailModal";
 import SearchView from "./components/SearchView";
 import FloatingButton from "./components/FloatingButton";
 import { api, getWeekRange } from "./services/api";
 
 export default function App() {
-  const [screen, setScreen] = useState(() => {
-    return localStorage.getItem("has_seen_onboarding") ? "dashboard" : "onboarding";
-  });
+  const [screen, setScreen] = useState("onboarding");
   const [tasks, setTasks] = useState([]);
   const [weeklyOverview, setWeeklyOverview] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -22,6 +22,7 @@ export default function App() {
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [viewingTask, setViewingTask] = useState(null);
   const [viewAll, setViewAll] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -70,6 +71,11 @@ export default function App() {
           : t
       )
     );
+    setViewingTask((prev) =>
+      prev && prev._id === taskId
+        ? { ...prev, status: prev.status === "Completed" ? "In Progress" : "Completed" }
+        : prev
+    );
     await api.toggleTaskStatus(taskId);
     await loadData();
   };
@@ -77,11 +83,17 @@ export default function App() {
   const handleDeleteTask = async (taskId) => {
     // Optimistic UI update
     setTasks((prev) => prev.filter((t) => t._id !== taskId));
+    if (viewingTask && viewingTask._id === taskId) {
+      setViewingTask(null);
+    }
     await api.deleteTask(taskId);
     await loadData();
   };
 
   const handleOpenEdit = (task) => {
+    if (viewingTask) {
+      setViewingTask(null);
+    }
     setEditingTask(task);
     setModalOpen(true);
   };
@@ -105,15 +117,16 @@ export default function App() {
   };
 
   const currentWeek = getWeekRange(selectedDate);
+  const isSearching = searchQuery.trim().length > 0;
 
-  // Filter tasks based on search query, selected date, and viewAll mode
+  // Filter tasks based on search query (strictly title & description), selected date, and viewAll mode
   const filteredTasks = tasks.filter((t) => {
-    // Search query filter (header search bar)
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      const inTitle = t.title && t.title.toLowerCase().includes(q);
-      const inDesc = t.description && t.description.toLowerCase().includes(q);
-      if (!inTitle && !inDesc) return false;
+    // Search query filter: ONLY title and description!
+    if (isSearching) {
+      const q = searchQuery.trim().toLowerCase();
+      const inTitle = t.title ? t.title.toLowerCase().includes(q) : false;
+      const inDesc = t.description ? t.description.toLowerCase().includes(q) : false;
+      return inTitle || inDesc;
     }
 
     if (viewAll) return true;
@@ -139,6 +152,7 @@ export default function App() {
         onSearchChange={setSearchQuery}
         onOpenSearchModal={() => setShowSearchModal(true)}
         onOpenCreateModal={handleOpenCreate}
+        onShowOnboarding={() => setScreen("onboarding")}
       />
 
       {/* Main Responsive Grid Layout */}
@@ -158,12 +172,22 @@ export default function App() {
               onNextWeek={handleNextWeek}
             />
 
+            {/* Mobile View: Place Weekly Summary & Progress immediately after Calendar (Figma Screen 2) */}
+            <div className="lg:hidden">
+              <WeeklyCards
+                weeklyOverview={weeklyOverview}
+                activeWeekIndex={activeWeekIndex}
+                onSelectWeek={(idx) => setActiveWeekIndex(idx)}
+                showBreakdown={false}
+              />
+            </div>
+
             {/* Task List Section */}
             <TaskList
               tasks={filteredTasks}
               title={
-                searchQuery
-                  ? `Search Results ("${searchQuery}")`
+                isSearching
+                  ? `Search Results for "${searchQuery}" (${filteredTasks.length})`
                   : viewAll
                   ? "All Scheduled Tasks"
                   : `Tasks for ${selectedDate.toLocaleDateString("default", {
@@ -174,20 +198,33 @@ export default function App() {
               }
               statusFilter={statusFilter}
               onStatusFilterChange={setStatusFilter}
-              showViewAll={!viewAll}
+              isSearching={isSearching}
+              onClearSearch={() => setSearchQuery("")}
+              showViewAll={!viewAll && !isSearching}
               onViewAll={() => setViewAll(true)}
               onToggleStatus={handleToggleStatus}
+              onViewTask={(task) => setViewingTask(task)}
               onEditTask={handleOpenEdit}
               onDeleteTask={handleDeleteTask}
             />
+
+            {/* Mobile View: Place Weekly Breakdown at the very bottom */}
+            <div className="lg:hidden pb-16">
+              <WeeklyBreakdown
+                weeklyOverview={weeklyOverview}
+                activeWeekIndex={activeWeekIndex}
+                onSelectWeek={(idx) => setActiveWeekIndex(idx)}
+              />
+            </div>
           </div>
 
-          {/* Right Column: Weekly Metrics, Progress, and Monday-to-Sunday Accordion */}
-          <div className="lg:col-span-5 xl:col-span-4">
+          {/* Right Column: Weekly Metrics, Progress, and Monday-to-Sunday Accordion (Desktop View) */}
+          <div className="hidden lg:block lg:col-span-5 xl:col-span-4">
             <WeeklyCards
               weeklyOverview={weeklyOverview}
               activeWeekIndex={activeWeekIndex}
               onSelectWeek={(idx) => setActiveWeekIndex(idx)}
+              showBreakdown={true}
             />
           </div>
         </div>
@@ -195,6 +232,16 @@ export default function App() {
 
       {/* Floating Action Button (Convenient on all screens) */}
       <FloatingButton onClick={handleOpenCreate} />
+
+      {/* Full Task Detail View Modal */}
+      <TaskDetailModal
+        isOpen={!!viewingTask}
+        task={viewingTask}
+        onClose={() => setViewingTask(null)}
+        onEdit={handleOpenEdit}
+        onToggleStatus={handleToggleStatus}
+        onDelete={handleDeleteTask}
+      />
 
       {/* Add / Edit Task Modal */}
       <TaskModal
@@ -212,8 +259,11 @@ export default function App() {
       {showSearchModal && (
         <SearchView
           tasks={tasks}
+          initialKeyword={searchQuery}
+          onKeywordChange={setSearchQuery}
           onClose={() => setShowSearchModal(false)}
           onToggleStatus={handleToggleStatus}
+          onViewTask={(task) => setViewingTask(task)}
           onEditTask={handleOpenEdit}
           onDeleteTask={handleDeleteTask}
         />
