@@ -1,4 +1,8 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/tasks";
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD
+    ? "https://todo-app-tsm0.onrender.com/api/tasks"
+    : "http://localhost:5000/api/tasks");
 
 // Helper to calculate Monday-Sunday week bounds
 export const getWeekRange = (dateInput = new Date()) => {
