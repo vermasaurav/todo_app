@@ -96,27 +96,9 @@ export default function Header({
         </div>
 
         {/* ============================================================== */}
-        {/* 📱 MOBILE HEADER (Visible on < md) - Exact Figma Screen 2 & 3 */}
+        {/* 📱 MOBILE HEADER (Visible on < md) - Starts directly with Search */}
         {/* ============================================================== */}
-        <div className="md:hidden pt-3 pb-3">
-          {/* Top Row: Settings (Left) & Notifications (Right) matching Figma */}
-          <div className="flex items-center justify-between mb-3 px-1">
-            <button
-              aria-label="Settings"
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-gray-700 hover:bg-gray-100 transition-colors"
-            >
-              <Settings className="w-5 h-5 text-gray-700" />
-            </button>
-
-            <button
-              aria-label="Notifications"
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-gray-700 hover:bg-gray-100 transition-colors relative"
-            >
-              <Bell className="w-5 h-5 text-gray-700" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
-            </button>
-          </div>
-
+        <div className="md:hidden py-3">
           {/* Clean Search Bar matching Figma Screen 2 */}
           <div className="relative w-full">
             <input

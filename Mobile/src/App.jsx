@@ -209,7 +209,7 @@ export default function App() {
             />
 
             {/* Mobile View: Place Weekly Breakdown at the very bottom */}
-            <div className="lg:hidden pb-16">
+            <div className="lg:hidden pb-24">
               <WeeklyBreakdown
                 weeklyOverview={weeklyOverview}
                 activeWeekIndex={activeWeekIndex}
