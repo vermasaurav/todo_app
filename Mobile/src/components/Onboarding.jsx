@@ -136,52 +136,53 @@ export default function Onboarding({ onGetStarted }) {
       {/* ============================================================== */}
       {/* 📱 MOBILE VIEW (< md) - Exact 1:1 Figma Screen 1 Mockup        */}
       {/* ============================================================== */}
-      <div className="md:hidden min-h-screen bg-[#3B5BF5] flex flex-col justify-between relative overflow-hidden">
-        {/* Soft Translucent Circle Accent in Top Right */}
-        <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/10 pointer-events-none" />
+      <div className="md:hidden h-screen h-[100dvh] max-h-[100dvh] w-full bg-[#3B5BF5] flex flex-col justify-between relative overflow-hidden">
+        {/* Top/Middle Blue Area */}
+        <div className="flex-1 relative flex items-center justify-center min-h-0 overflow-hidden px-6">
+          {/* Soft Translucent Circle Accent in Top Right */}
+          <div className="absolute -top-10 -right-10 w-44 h-44 rounded-full bg-white/10 pointer-events-none" />
 
-        {/* Top-Left Zigzag Pattern */}
-        <div className="absolute top-10 left-6 pointer-events-none">
-          <svg width="80" height="64" viewBox="0 0 80 64" fill="none" stroke="rgba(255, 255, 255, 0.28)" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M 4,8  L 16,18 L 28,8  L 40,18 L 52,8  L 64,18 L 76,8" />
-            <path d="M 4,22 L 16,32 L 28,22 L 40,32 L 52,22 L 64,32 L 76,22" />
-            <path d="M 4,36 L 16,46 L 28,36 L 40,46 L 52,36 L 64,46 L 76,36" />
-            <path d="M 4,50 L 16,60 L 28,50 L 40,60 L 52,50 L 64,60 L 76,50" />
-          </svg>
-        </div>
+          {/* Top-Left Zigzag Pattern */}
+          <div className="absolute top-8 left-6 pointer-events-none">
+            <svg width="72" height="58" viewBox="0 0 80 64" fill="none" stroke="rgba(255, 255, 255, 0.28)" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M 4,8  L 16,18 L 28,8  L 40,18 L 52,8  L 64,18 L 76,8" />
+              <path d="M 4,22 L 16,32 L 28,22 L 40,32 L 52,22 L 64,32 L 76,22" />
+              <path d="M 4,36 L 16,46 L 28,36 L 40,46 L 52,36 L 64,46 L 76,36" />
+              <path d="M 4,50 L 16,60 L 28,50 L 40,60 L 52,50 L 64,60 L 76,50" />
+            </svg>
+          </div>
 
-        {/* Bottom-Right Zigzag Pattern */}
-        <div className="absolute bottom-[36%] right-6 pointer-events-none">
-          <svg width="80" height="64" viewBox="0 0 80 64" fill="none" stroke="rgba(255, 255, 255, 0.28)" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M 4,8  L 16,18 L 28,8  L 40,18 L 52,8  L 64,18 L 76,8" />
-            <path d="M 4,22 L 16,32 L 28,22 L 40,32 L 52,22 L 64,32 L 76,22" />
-            <path d="M 4,36 L 16,46 L 28,36 L 40,46 L 52,36 L 64,46 L 76,36" />
-            <path d="M 4,50 L 16,60 L 28,50 L 40,60 L 52,50 L 64,60 L 76,50" />
-          </svg>
-        </div>
+          {/* Bottom-Right Zigzag Pattern */}
+          <div className="absolute bottom-6 right-6 pointer-events-none">
+            <svg width="72" height="58" viewBox="0 0 80 64" fill="none" stroke="rgba(255, 255, 255, 0.28)" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M 4,8  L 16,18 L 28,8  L 40,18 L 52,8  L 64,18 L 76,8" />
+              <path d="M 4,22 L 16,32 L 28,22 L 40,32 L 52,22 L 64,32 L 76,22" />
+              <path d="M 4,36 L 16,46 L 28,36 L 40,46 L 52,36 L 64,46 L 76,36" />
+              <path d="M 4,50 L 16,60 L 28,50 L 40,60 L 52,50 L 64,60 L 76,50" />
+            </svg>
+          </div>
 
-        {/* Center Check Icon */}
-        <div className="flex-1 flex items-center justify-center relative z-10 px-6">
-          <div className="w-20 h-20 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-inner">
-            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {/* Center Check Icon */}
+          <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-white/12 backdrop-blur-md border border-white/25 flex items-center justify-center shadow-inner relative z-10">
+            <svg className="w-9 h-9 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
             </svg>
           </div>
         </div>
 
         {/* Bottom White Card */}
-        <div className="bg-white rounded-t-[36px] px-8 pt-9 pb-12 shadow-2xl relative z-20 flex flex-col">
-          <h1 className="text-[28px] font-extrabold text-[#111827] tracking-tight leading-tight">
+        <div className="shrink-0 bg-white rounded-t-[32px] sm:rounded-t-[36px] px-6 sm:px-8 pt-6 sm:pt-7 pb-8 sm:pb-9 shadow-2xl relative z-20 flex flex-col">
+          <h1 className="text-2xl sm:text-[28px] font-extrabold text-[#111827] tracking-tight leading-tight">
             Manage What To Do
           </h1>
 
-          <p className="text-gray-500 text-sm mt-3 leading-relaxed">
+          <p className="text-gray-500 text-xs sm:text-sm mt-2 sm:mt-2.5 leading-relaxed">
             The best way to manage what you have to do, don't forget your plans
           </p>
 
           <button
             onClick={onGetStarted}
-            className="mt-8 w-full bg-[#3B5BF5] hover:bg-[#2E49D3] active:scale-[0.98] text-white py-4 rounded-2xl font-bold text-base shadow-xl shadow-blue-500/30 transition-all duration-200 text-center cursor-pointer"
+            className="mt-6 sm:mt-7 w-full bg-[#3B5BF5] hover:bg-[#2E49D3] active:scale-[0.98] text-white py-3.5 sm:py-4 rounded-2xl font-bold text-sm sm:text-base shadow-xl shadow-blue-500/25 transition-all duration-200 text-center cursor-pointer"
           >
             Get Started
           </button>
