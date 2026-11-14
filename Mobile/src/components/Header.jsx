@@ -1,5 +1,5 @@
 import React from "react";
-import { Settings, Search, Bell, Plus, CheckCircle2, X } from "lucide-react";
+import { Settings, Search, Bell, Plus, CheckCircle2, X, ArrowLeft } from "lucide-react";
 
 export default function Header({
   searchQuery,
@@ -98,8 +98,18 @@ export default function Header({
         {/* ============================================================== */}
         {/* 📱 MOBILE HEADER (Visible on < md) - Starts directly with Search */}
         {/* ============================================================== */}
-        <div className="md:hidden py-3">
-          {/* Clean Search Bar matching Figma Screen 2 */}
+        <div className="md:hidden py-3 flex items-center gap-2.5">
+          {searchQuery && (
+            <button
+              onClick={() => onSearchChange("")}
+              aria-label="Back to home"
+              className="w-10 h-10 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center shrink-0 transition-colors active:scale-95"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+          )}
+
+          {/* Clean Search Bar matching Figma Screen 2 & 4 */}
           <div className="relative w-full">
             <input
               type="text"

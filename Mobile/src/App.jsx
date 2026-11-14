@@ -157,77 +157,99 @@ export default function App() {
 
       {/* Main Responsive Grid Layout */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Week Day Strip & Tasks List */}
-          <div className="lg:col-span-7 xl:col-span-8 space-y-6">
-            {/* Week Calendar Day Strip */}
-            <WeekStrip
-              selectedDate={selectedDate}
-              currentWeekLabel={currentWeek.weekLabel}
-              onSelectDate={(d) => {
-                setSelectedDate(d);
-                setViewAll(false);
-              }}
-              onPrevWeek={handlePrevWeek}
-              onNextWeek={handleNextWeek}
-            />
-
-            {/* Mobile View: Place Weekly Summary & Progress immediately after Calendar (Figma Screen 2) */}
-            <div className="lg:hidden">
-              <WeeklyCards
-                weeklyOverview={weeklyOverview}
-                activeWeekIndex={activeWeekIndex}
-                onSelectWeek={(idx) => setActiveWeekIndex(idx)}
-                showBreakdown={false}
-              />
-            </div>
-
-            {/* Task List Section */}
+        {isSearching ? (
+          /* ============================================================== */
+          /* 🔍 SEARCH MODE: Replaces everything below header with results  */
+          /* ============================================================== */
+          <div className="max-w-3xl mx-auto space-y-4 pb-24">
             <TaskList
               tasks={filteredTasks}
-              title={
-                isSearching
-                  ? `Search Results for "${searchQuery}" (${filteredTasks.length})`
-                  : viewAll
-                  ? "All Scheduled Tasks"
-                  : `Tasks for ${selectedDate.toLocaleDateString("default", {
-                      weekday: "long",
-                      month: "short",
-                      day: "numeric",
-                    })}`
-              }
+              title={`Search Results for "${searchQuery}"`}
               statusFilter={statusFilter}
               onStatusFilterChange={setStatusFilter}
-              isSearching={isSearching}
+              isSearching={true}
               onClearSearch={() => setSearchQuery("")}
-              showViewAll={!viewAll && !isSearching}
-              onViewAll={() => setViewAll(true)}
+              showViewAll={false}
               onToggleStatus={handleToggleStatus}
               onViewTask={(task) => setViewingTask(task)}
               onEditTask={handleOpenEdit}
               onDeleteTask={handleDeleteTask}
             />
+          </div>
+        ) : (
+          /* ============================================================== */
+          /* 🏠 NORMAL HOME DASHBOARD (Calendar, Cards, Tasks, Breakdown)   */
+          /* ============================================================== */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left Column: Week Day Strip & Tasks List */}
+            <div className="lg:col-span-7 xl:col-span-8 space-y-6">
+              {/* Week Calendar Day Strip */}
+              <WeekStrip
+                selectedDate={selectedDate}
+                currentWeekLabel={currentWeek.weekLabel}
+                onSelectDate={(d) => {
+                  setSelectedDate(d);
+                  setViewAll(false);
+                }}
+                onPrevWeek={handlePrevWeek}
+                onNextWeek={handleNextWeek}
+              />
 
-            {/* Mobile View: Place Weekly Breakdown at the very bottom */}
-            <div className="lg:hidden pb-24">
-              <WeeklyBreakdown
+              {/* Mobile View: Place Weekly Summary & Progress immediately after Calendar (Figma Screen 2) */}
+              <div className="lg:hidden">
+                <WeeklyCards
+                  weeklyOverview={weeklyOverview}
+                  activeWeekIndex={activeWeekIndex}
+                  onSelectWeek={(idx) => setActiveWeekIndex(idx)}
+                  showBreakdown={false}
+                />
+              </div>
+
+              {/* Task List Section */}
+              <TaskList
+                tasks={filteredTasks}
+                title={
+                  viewAll
+                    ? "All Scheduled Tasks"
+                    : `Tasks for ${selectedDate.toLocaleDateString("default", {
+                        weekday: "long",
+                        month: "short",
+                        day: "numeric",
+                      })}`
+                }
+                statusFilter={statusFilter}
+                onStatusFilterChange={setStatusFilter}
+                isSearching={false}
+                onClearSearch={() => setSearchQuery("")}
+                showViewAll={!viewAll}
+                onViewAll={() => setViewAll(true)}
+                onToggleStatus={handleToggleStatus}
+                onViewTask={(task) => setViewingTask(task)}
+                onEditTask={handleOpenEdit}
+                onDeleteTask={handleDeleteTask}
+              />
+
+              {/* Mobile View: Place Weekly Breakdown at the very bottom */}
+              <div className="lg:hidden pb-24">
+                <WeeklyBreakdown
+                  weeklyOverview={weeklyOverview}
+                  activeWeekIndex={activeWeekIndex}
+                  onSelectWeek={(idx) => setActiveWeekIndex(idx)}
+                />
+              </div>
+            </div>
+
+            {/* Right Column: Weekly Metrics, Progress, and Monday-to-Sunday Accordion (Desktop View) */}
+            <div className="hidden lg:block lg:col-span-5 xl:col-span-4">
+              <WeeklyCards
                 weeklyOverview={weeklyOverview}
                 activeWeekIndex={activeWeekIndex}
                 onSelectWeek={(idx) => setActiveWeekIndex(idx)}
+                showBreakdown={true}
               />
             </div>
           </div>
-
-          {/* Right Column: Weekly Metrics, Progress, and Monday-to-Sunday Accordion (Desktop View) */}
-          <div className="hidden lg:block lg:col-span-5 xl:col-span-4">
-            <WeeklyCards
-              weeklyOverview={weeklyOverview}
-              activeWeekIndex={activeWeekIndex}
-              onSelectWeek={(idx) => setActiveWeekIndex(idx)}
-              showBreakdown={true}
-            />
-          </div>
-        </div>
+        )}
       </main>
 
       {/* Floating Action Button (Convenient on all screens) */}

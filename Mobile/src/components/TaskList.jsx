@@ -141,8 +141,14 @@ export default function TaskList({
           <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#3B5BF5] flex items-center justify-center mx-auto mb-3">
             <AlertCircle className="w-6 h-6 opacity-60" />
           </div>
-          <p className="text-gray-700 text-sm font-semibold">No tasks found</p>
-          <p className="text-xs text-gray-400 mt-1">There are no tasks matching the selected filters or date.</p>
+          <p className="text-gray-700 text-sm font-semibold">
+            {isSearching ? "No matching tasks found" : "No tasks found"}
+          </p>
+          <p className="text-xs text-gray-400 mt-1">
+            {isSearching
+              ? "Try searching with a different title or description keyword."
+              : "There are no tasks matching the selected filters or date."}
+          </p>
         </div>
       ) : (
         <div className="space-y-3 pt-4">
